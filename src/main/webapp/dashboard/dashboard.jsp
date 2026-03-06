@@ -1,5 +1,5 @@
-<%@ page import="com.gymtracker.model.User" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.gymtracker.model.User" %>
 <%@ page import="com.gymtracker.dao.WorkoutDAO" %>
 <%@ page import="com.gymtracker.dao.ExerciseDAO" %>
 <%@ page import="java.util.List" %>
@@ -11,7 +11,7 @@ ExerciseDAO eDao = new ExerciseDAO();
 List<String[]> workouts = wDao.getWorkoutHistory(user.getId());
 int totalWorkouts = workouts.size();
 int totalExercises = eDao.getExercisesByUser(user.getId()).size();
-String lastWorkoutDate = totalWorkouts > 0 ? workouts.get(0)[0] : "—";
+String lastWorkoutDate = totalWorkouts > 0 ? workouts.get(0)[0] : "&mdash;";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,45 +22,110 @@ String lastWorkoutDate = totalWorkouts > 0 ? workouts.get(0)[0] : "—";
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
         body { background: #0d0d0d; color: #e5e7eb; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { width: 240px; min-height: 100vh; background: #111; border-right: 1px solid #1f1f1f; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; padding: 1.5rem 0; z-index: 100; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px; min-height: 100vh; background: #111;
+            border-right: 1px solid #1f1f1f; position: fixed;
+            top: 0; left: 0; display: flex; flex-direction: column;
+            padding: 1.5rem 0; z-index: 100;
+            animation: fadeInLeft 0.4s ease both;
+            transition: transform 0.3s ease;
+        }
         .brand { font-size: 1.4rem; font-weight: 800; color: #fff; padding: 0 1.5rem 1.5rem; border-bottom: 1px solid #1f1f1f; }
         .brand span { color: #dc2626; }
         .nav-section { padding: 1.5rem 0; flex: 1; }
         .nav-label { font-size: 0.7rem; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; padding: 0 1.5rem; margin-bottom: 0.5rem; }
-        .nav-item a { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1.5rem; color: #9ca3af; text-decoration: none; font-size: 0.9rem; font-weight: 500; border-left: 3px solid transparent; transition: all 0.15s; }
+        .nav-item a { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1.5rem; color: #9ca3af; text-decoration: none; font-size: 0.9rem; font-weight: 500; border-left: 3px solid transparent; transition: all 0.2s; }
         .nav-item a:hover, .nav-item a.active { color: #fff; background: rgba(220,38,38,0.08); border-left-color: #dc2626; }
+        .nav-item a i { transition: transform 0.2s; }
+        .nav-item a:hover i { transform: translateX(3px); }
         .sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid #1f1f1f; }
-        .user-avatar { width: 36px; height: 36px; background: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0; }
+        .user-avatar { width: 36px; height: 36px; background: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0; transition: transform 0.2s; }
+        .user-avatar:hover { transform: scale(1.1); }
         .user-name { font-size: 0.85rem; color: #d1d5db; font-weight: 600; }
         .user-email { font-size: 0.75rem; color: #6b7280; }
-        .btn-logout { font-size: 0.8rem; color: #6b7280; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; }
+        .btn-logout { font-size: 0.8rem; color: #6b7280; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; transition: color 0.2s; }
         .btn-logout:hover { color: #dc2626; }
+
+        /* MAIN */
         .main-content { margin-left: 240px; padding: 2rem; }
-        .stat-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s; }
-        .stat-card:hover { border-color: #dc2626; }
-        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem; }
+        .stat-card {
+            background: #141414; border: 1px solid #1f1f1f; border-radius: 12px;
+            padding: 1.5rem; transition: all 0.25s;
+            animation: fadeInUp 0.5s ease both;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:hover { border-color: #dc2626; transform: translateY(-3px); box-shadow: 0 8px 30px rgba(220,38,38,0.1); }
+        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem; transition: transform 0.2s; }
+        .stat-card:hover .stat-icon { transform: scale(1.15); }
         .stat-icon.red { background: rgba(220,38,38,0.15); color: #dc2626; }
         .stat-icon.orange { background: rgba(234,88,12,0.15); color: #ea580c; }
         .stat-icon.green { background: rgba(22,163,74,0.15); color: #16a34a; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #fff; animation: countUp 0.5s ease both; }
         .stat-label { font-size: 0.82rem; color: #6b7280; margin-top: 0.25rem; }
-        .section-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 12px; overflow: hidden; }
+        .section-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 12px; overflow: hidden; animation: fadeInUp 0.5s ease 0.4s both; }
         .section-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #1f1f1f; display: flex; justify-content: space-between; align-items: center; }
         .section-header h5 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #e5e7eb; }
         .table { color: #d1d5db; margin: 0; }
         .table thead th { background: #0f0f0f; border-color: #1f1f1f; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; font-weight: 600; padding: 0.75rem 1.5rem; }
-        .table tbody td { border-color: #1a1a1a; padding: 0.85rem 1.5rem; font-size: 0.875rem; vertical-align: middle; }
-        .table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+        .table tbody td { border-color: #1a1a1a; padding: 0.85rem 1.5rem; font-size: 0.875rem; vertical-align: middle; transition: background 0.15s; }
+        .table tbody tr:hover td { background: rgba(220,38,38,0.04); }
         .badge-muscle { background: rgba(220,38,38,0.15); color: #f87171; font-size: 0.75rem; padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 500; }
-        .quick-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
-        .quick-btn:hover { border-color: #dc2626; color: #fff; background: rgba(220,38,38,0.08); }
-        .quick-btn i { font-size: 1.1rem; color: #dc2626; }
+        .quick-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; animation: fadeInUp 0.5s ease both; }
+        .quick-btn:nth-child(1) { animation-delay: 0.2s; }
+        .quick-btn:nth-child(2) { animation-delay: 0.3s; }
+        .quick-btn:nth-child(3) { animation-delay: 0.4s; }
+        .quick-btn:hover { border-color: #dc2626; color: #fff; background: rgba(220,38,38,0.08); transform: translateY(-2px); }
+        .quick-btn i { font-size: 1.1rem; color: #dc2626; transition: transform 0.2s; }
+        .quick-btn:hover i { transform: scale(1.2); }
         .empty-state { padding: 2.5rem; text-align: center; color: #4b5563; }
+
+        /* HAMBURGER */
+        .hamburger { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 200; background: #141414; border: 1px solid #2a2a2a; border-radius: 8px; padding: 0.5rem 0.65rem; cursor: pointer; color: #fff; font-size: 1.2rem; transition: background 0.2s; }
+        .hamburger:hover { background: #dc2626; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .overlay.show { display: block; }
+            .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; }
+            .stat-value { font-size: 1.4rem; }
+            .table thead { display: none; }
+            .table tbody tr { display: block; border: 1px solid #1f1f1f; border-radius: 8px; margin-bottom: 0.75rem; padding: 0.5rem; }
+            .table tbody td { display: flex; justify-content: space-between; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+            .table tbody td::before { content: attr(data-label); color: #6b7280; font-size: 0.72rem; text-transform: uppercase; }
+        }
+        @media (max-width: 480px) {
+            .quick-btn { padding: 0.75rem 1rem; font-size: 0.82rem; }
+        }
     </style>
 </head>
 <body>
-<div class="sidebar">
+
+<button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
     <div class="brand">GYM<span>TRACKER</span></div>
     <nav class="nav-section">
         <div class="nav-label">Main</div>
@@ -80,44 +145,48 @@ String lastWorkoutDate = totalWorkouts > 0 ? workouts.get(0)[0] : "—";
         <a href="../auth/login.jsp" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
     </div>
 </div>
+
 <div class="main-content">
-    <div class="mb-4">
+    <div class="mb-4" style="animation: fadeInUp 0.5s ease both;">
         <h1 style="font-size:1.6rem;font-weight:700;color:#fff;margin:0">Welcome back, <%= user.getName().split(" ")[0] %></h1>
         <p style="color:#6b7280;margin:0.25rem 0 0;font-size:0.9rem">Here's your training overview</p>
     </div>
+
     <div class="row g-3 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-4 col-6">
             <div class="stat-card">
                 <div class="stat-icon red"><i class="bi bi-activity"></i></div>
                 <div class="stat-value"><%= totalWorkouts %></div>
-                <div class="stat-label">Total Workouts Logged</div>
+                <div class="stat-label">Total Workouts</div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 col-6">
             <div class="stat-card">
                 <div class="stat-icon orange"><i class="bi bi-lightning-charge"></i></div>
                 <div class="stat-value"><%= totalExercises %></div>
                 <div class="stat-label">Exercises Created</div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 col-12">
             <div class="stat-card">
                 <div class="stat-icon green"><i class="bi bi-calendar-check"></i></div>
-                <div class="stat-value" style="font-size:1.15rem;padding-top:4px"><%= lastWorkoutDate %></div>
-                <div class="stat-label">Last Workout Date</div>
+                <div class="stat-value" style="font-size:1.1rem;padding-top:4px"><%= lastWorkoutDate %></div>
+                <div class="stat-label">Last Workout</div>
             </div>
         </div>
     </div>
+
     <p style="color:#6b7280;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.75rem">Quick Actions</p>
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6"><a href="../log-workout.jsp" class="quick-btn"><i class="bi bi-plus-circle-fill"></i> Log Workout</a></div>
         <div class="col-md-3 col-6"><a href="../exercises.jsp" class="quick-btn"><i class="bi bi-lightning-charge-fill"></i> Add Exercise</a></div>
         <div class="col-md-3 col-6"><a href="../history.jsp" class="quick-btn"><i class="bi bi-clock-history"></i> View History</a></div>
     </div>
+
     <div class="section-card">
         <div class="section-header">
             <h5><i class="bi bi-clock-history me-2 text-danger"></i>Recent Workouts</h5>
-            <a href="../history.jsp" style="font-size:0.82rem;color:#dc2626;text-decoration:none">View All →</a>
+            <a href="../history.jsp" style="font-size:0.82rem;color:#dc2626;text-decoration:none;transition:opacity 0.2s" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">View All &rarr;</a>
         </div>
         <% if(totalWorkouts == 0) { %>
         <div class="empty-state">
@@ -125,24 +194,33 @@ String lastWorkoutDate = totalWorkouts > 0 ? workouts.get(0)[0] : "—";
             No workouts yet. <a href="../log-workout.jsp" style="color:#dc2626">Log your first one!</a>
         </div>
         <% } else { %>
+        <div class="table-responsive">
         <table class="table table-borderless">
             <thead><tr><th>Date</th><th>Exercise</th><th>Weight</th><th>Sets</th><th>Reps</th><th>Notes</th></tr></thead>
             <tbody>
                 <% int limit = Math.min(5, workouts.size()); for(int i=0;i<limit;i++){ String[] w=workouts.get(i); %>
                 <tr>
-                    <td style="color:#9ca3af;font-size:0.82rem"><%= w[0] %></td>
-                    <td><strong style="color:#fff"><%= w[1] %></strong></td>
-                    <td><strong style="color:#fff"><%= w[2] %></strong> <span style="color:#6b7280;font-size:0.75rem">kg</span></td>
-                    <td><span class="badge-muscle"><%= w[3] %> sets</span></td>
-                    <td><%= w[4] %> reps</td>
-                    <td style="color:#6b7280"><%= w[5] != null ? w[5] : "—" %></td>
+                    <td data-label="Date" style="color:#9ca3af;font-size:0.82rem"><%= w[0] %></td>
+                    <td data-label="Exercise"><strong style="color:#fff"><%= w[1] %></strong></td>
+                    <td data-label="Weight"><strong style="color:#fff"><%= w[2] %></strong> <span style="color:#6b7280;font-size:0.75rem">kg</span></td>
+                    <td data-label="Sets"><span class="badge-muscle"><%= w[3] %> sets</span></td>
+                    <td data-label="Reps"><%= w[4] %> reps</td>
+                    <td data-label="Notes" style="color:#6b7280"><%= w[5] != null ? w[5] : "&mdash;" %></td>
                 </tr>
                 <% } %>
             </tbody>
         </table>
+        </div>
         <% } %>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('show');
+    }
+</script>
 </body>
 </html>
